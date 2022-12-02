@@ -84,9 +84,33 @@ def matrix_mul(ma1, ma2):
     return ma
 
 
-def draw_figure(points, color):
-    fig = plt.figure()
-    ax = fig.add_subplot(projection='3d')
+def draw_all_plots(points_list):
+    a = 2
+    b = 2
+    c = 2
+    fi = 45
+    xnew = 1
+    ynew = 1
+    znew = 1
+
+    fig = plt.figure(figsize=plt.figaspect(0.5))
+    fig = draw_figure(fig, points_list, 'cyan', 1, 'Figure')
+    fig = draw_figure(fig, rotate_x(points_list, fi), 'green', 2, 'Rotate X')
+    fig = draw_figure(fig, rotate_y(points_list, fi), 'green', 3, 'Rotate Y')
+    fig = draw_figure(fig, rotate_z(points_list, fi), 'green', 4, 'Rotate Z')
+    fig = draw_figure(fig, stretching_compression(points_list, a, b, c), 'yellow', 5, '\nStretching compression')
+    fig = draw_figure(fig, reflection_x0y(points_list), 'brown', 6, 'Reflection XoY')
+    fig = draw_figure(fig, reflection_y0z(points_list), 'brown', 7, 'Reflection YoZ')
+    fig = draw_figure(fig, reflection_z0x(points_list), 'brown', 8, 'Reflection ZoX')
+    fig = draw_figure(fig, transfer_x(points_list, xnew), 'hotpink', 9, 'Transfer X')
+    fig = draw_figure(fig, transfer_y(points_list, ynew), 'hotpink', 10, 'Transfer Y')
+    fig = draw_figure(fig, transfer_z(points_list, znew), 'hotpink', 11, 'Transfer Z')
+    plt.show()
+
+
+def draw_figure(fig, points, color, index, title):
+    ax = fig.add_subplot(2, 6, index, projection='3d')
+    ax.title.set_text(title)
     ax.set_xlim((-20, 20))
     ax.set_ylim((-20, 20))
     ax.set_zlim((-20, 20))
@@ -97,74 +121,57 @@ def draw_figure(points, color):
         [points[3], points[4], points[2]],
         [points[2], points[4], points[1]]
     ]
-    pc = Poly3DCollection(v, facecolors='green', edgecolors='r')
+    pc = Poly3DCollection(v, facecolors=color, edgecolors='black')
     ax.add_collection3d(pc)
 
     ax.set_xlabel('X')
     ax.set_ylabel('Y')
     ax.set_zlabel('Z')
-    plt.show()
+
+    return fig
+
+def calculate_new_points(points_list, ma):
+    new_points_list = []
+    for i in points_list:
+        new_points_list.append(matrix_mul(ma, [i[0], i[1], i[2]]))
+    print(new_points_list)
+    return new_points_list
 
 
 def rotate_x(points_list, fi):
-    new_points_list = []
-    ma = rotate_matrix_x(fi=fi)
-    for i in points_list:
-        new_points_list.append(matrix_mul(ma, [i[0], i[1], i[2]]))
-    print(new_points_list)
-    return new_points_list
+    ma = rotate_matrix_x(fi)
+    return calculate_new_points(points_list, ma)
+    
 
 
 def rotate_y(points_list ,fi):
-    new_points_list = []
-    ma = rotate_matrix_y(fi=fi)
-    for i in points_list:
-        new_points_list.append(matrix_mul(ma, [i[0], i[1], i[2]]))
-    print(new_points_list)
-    return new_points_list
+    ma = rotate_matrix_y(fi)
+    return calculate_new_points(points_list, ma)
 
 
 def rotate_z(points_list, fi):
-    new_points_list = []
-    ma = rotate_matrix_z(fi=fi)
-    for i in points_list:
-        new_points_list.append(matrix_mul(ma, [i[0], i[1], i[2]]))
-    print(new_points_list)
-    return new_points_list
+    ma = rotate_matrix_z(fi)
+    return calculate_new_points(points_list, ma)
 
 
 def reflection_x0y(points_list):
-    new_points_list = []
     ma = reflection_x0y_matrix()
-    for i in points_list:
-        new_points_list.append(matrix_mul(ma, [i[0], i[1], i[2]]))
-    print(new_points_list)
-    return new_points_list
+    return calculate_new_points(points_list, ma)
 
 
 def reflection_y0z(points_list):
-    new_points_list = []
     ma = reflection_y0z_matrix()
-    for i in points_list:
-        new_points_list.append(matrix_mul(ma, [i[0], i[1], i[2]]))
-    return new_points_list
+    return calculate_new_points(points_list, ma)
 
 
 def reflection_z0x(points_list):
-    new_points_list = []
     ma = reflection_z0x_matrix()
-    for i in points_list:
-        new_points_list.append(matrix_mul(ma, [i[0], i[1], i[2]]))
-    return new_points_list
+    return calculate_new_points(points_list, ma)
 
 
 def stretching_compression(points_list, a, b, c):
-    new_points_list = []
     ma = stretching_compression_matrix(a, b, c)
-    for i in points_list:
-        new_points_list.append(matrix_mul(ma, [i[0], i[1], i[2]]))
-    print(new_points_list)
-    return new_points_list
+    return calculate_new_points(points_list, ma)
 
 
 def transfer_x(points_list, xnew):
@@ -194,27 +201,10 @@ def main():
     x = 3
     y = 3
     z = 9
-    a = 2
-    b = 2
-    c = 2
-    fi = 45
-    xnew = 1
-    ynew = 1
-    znew = 1
     points_list = [
         [x1, y1, z1], [x1, y2, z1], [x2, y2, z1], [x2, y1, z1], [x, y, z]
     ]
-    draw_figure(points_list, 'cyan')
-    draw_figure(rotate_x(points_list, fi), 'green')
-    draw_figure(rotate_y(points_list, fi), 'green')
-    draw_figure(rotate_z(points_list, fi), 'green')
-    draw_figure(stretching_compression(points_list, a, b, c), 'green')
-    draw_figure(reflection_x0y(points_list), 'green')
-    draw_figure(reflection_y0z(points_list), 'green')
-    draw_figure(reflection_z0x(points_list), 'green')
-    draw_figure(transfer_x(points_list, xnew), 'green')
-    draw_figure(transfer_y(points_list, ynew), 'green')
-    draw_figure(transfer_z(points_list, znew), 'green')
+    draw_all_plots(points_list)
 
 
 if __name__ == '__main__':
